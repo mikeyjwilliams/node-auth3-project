@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const secret = require('../Secrets/secret');
 const Auth = require('./auth-model');
+const restrict = require('../middleware/restrict');
 const router = express.Router();
 
 router.post('/register', async (req, res, next) => {
@@ -19,6 +20,11 @@ router.post('/register', async (req, res, next) => {
     return res.status(400).json({ message: 'department is required' });
   }
   try {
+    const userCheck = Auth.findBy({ username }).first();
+    if (userCheck) {
+      return res.status(409).json({ message: 'username is taken already.' });
+    }
+
     const userReg = {
       username: username,
       password: password,
@@ -37,9 +43,6 @@ router.post('/login', async (req, res, next) => {
   try {
     const user = await Auth.findPassBy({ username }).first();
 
-    if (user.username) {
-      return res.status(409).json({ message: 'username is already taken' });
-    }
     const passwordCheck = bcrypt.compare(password, user.password);
     if (!user && !passwordCheck) {
       res.status(401).json({ message: 'You shall not Pass!' });
@@ -55,6 +58,15 @@ router.post('/login', async (req, res, next) => {
       message: `Greetings ${user.username}!`,
       token: token,
     });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/users', restrict(), async (req, res, next) => {
+  try {
+    const users = await Auth.getAllUsers();
+    res.status(200).json(users);
   } catch (err) {
     console.log(err);
     next(err);
