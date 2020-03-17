@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const secret = require('../Secrets/secret');
 
 function restrict() {
-  const authErr = { message: 'Invalid Credentials' };
+  const authErr = { message: 'You Shall Not Pass!' };
 
   return async (req, res, next) => {
     try {
@@ -17,7 +17,7 @@ function restrict() {
           return res.status(401).json(authErr);
         } else {
           req.token = decoded;
-          console.log('D ', decoded);
+
           next();
         }
       });
