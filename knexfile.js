@@ -9,5 +9,11 @@ module.exports = {
     connection: {
       filename: './data/department-users.db3',
     },
+    migrations: {
+      directory: './data/migrations',
+    },
+    seeds: {
+      directory: './data/seeds',
+    },
   },
 };
