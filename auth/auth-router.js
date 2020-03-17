@@ -3,6 +3,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const secret = require('../Secrets/secret');
 const Auth = require('./auth-model');
 const router = express.Router();
 
@@ -30,15 +31,34 @@ router.post('/register', async (req, res, next) => {
   }
 });
 
+router.post('/login', async (req, res, next) => {
+  const { username, password } = req.body;
+
+  try {
+    const user = await Auth.findPassBy({ username }).first();
+
+    if (user.username) {
+      return res.status(409).json({ message: 'username is already taken' });
+    }
+    const passwordCheck = bcrypt.compare(password, user.password);
+    if (!user && !passwordCheck) {
+      res.status(401).json({ message: 'You shall not Pass!' });
+    }
+    const payload = {
+      subject: user.id,
+      access: user.department,
+    };
+    const token = jwt.sign(payload, secret.jwtSecret);
+
+    res.cookie('token', token);
+    res.json({
+      message: `Greetings ${user.username}!`,
+      token: token,
+    });
+  } catch (err) {
+    console.log(err);
+    next(err);
+  }
+});
+
 module.exports = router;
-
-//  const name = await Auth.findByPass({ username }).first();
-//  if (name.username) {
-//    return res.status(409).json({ message: 'name is already in use' });
-//  }
-
-//  const passwordValid = bcrypt.compare(password, name.password);
-
-//  if (!name && !passwordValid) {
-//    res.status(401).json({ message: 'Invalid Credentials' });
-//  }
