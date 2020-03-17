@@ -19,7 +19,7 @@ function findBy(filter) {
 
 function findPassBy(filter) {
   return db('users')
-    .select('id', 'username', 'passwords', 'department')
+    .select('id', 'username', 'password', 'department')
     .where(filter);
 }
 
