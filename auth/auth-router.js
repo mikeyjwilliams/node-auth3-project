@@ -20,7 +20,7 @@ router.post('/register', async (req, res, next) => {
     return res.status(400).json({ message: 'department is required' });
   }
   try {
-    const userCheck = Auth.findBy({ username }).first();
+    const userCheck = await Auth.findBy({ username }).first();
     if (userCheck) {
       return res.status(409).json({ message: 'username is taken already.' });
     }
@@ -65,10 +65,11 @@ router.post('/login', async (req, res, next) => {
 
 router.get('/users', restrict(), async (req, res, next) => {
   try {
-    const users = await Auth.getAllUsers();
+    console.log('ACCESS ', req.token.access);
+    const access = req.token.access;
+    const users = await Auth.findBy({ department: access });
     res.status(200).json(users);
   } catch (err) {
-    console.log(err);
     next(err);
   }
 });
