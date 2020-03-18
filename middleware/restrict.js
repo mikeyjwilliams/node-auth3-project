@@ -22,7 +22,6 @@ function restrict() {
         }
       });
     } catch (err) {
-      console.log(err);
       next(err);
     }
   };
